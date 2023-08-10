@@ -220,3 +220,26 @@ def get_mixed_trials_features(all_trials_features: list, list_trials: list):
         features.append(padded_inputs)
 
     return tf.concat(features, 0)
+
+
+# Recovery helper functions
+def recover_parameter(prediction, scaler):
+  estimated = prediction.reshape(prediction.shape[0], 1)
+  return scaler.inverse_transform(estimated)[:, 0]
+
+def get_recovered_parameters(name_to_scaler, name_to_true_parms, prediction):
+  from collections import defaultdict
+
+  sorted_label_names = list(name_to_true_parms.keys())
+  sorted_label_names.sort()
+  param_all_test = defaultdict(list)
+  idx = 0
+  for l in sorted_label_names:
+    k = f'true_{l}'
+    param_all_test[k] = name_to_true_parms[l][:, 0]
+
+    k = f'dl_{l}'
+    param_all_test[k] = recover_parameter(prediction[:, idx], name_to_scaler[l])
+    idx += 1
+
+  return pd.DataFrame(param_all_test)
