@@ -171,7 +171,7 @@ def normalize_val_labels(name_to_labels: dict, name_to_scaler: dict):
     return np.concatenate(normalized_labels, axis=-1)
 
 
-def _padding(data, max_num_trial: int, num_trials: int):
+def padding(data, max_num_trial: int, num_trials: int):
     """Padding the features with -1 based on maximum number of trial.
 
     Args:
@@ -216,7 +216,7 @@ def get_mixed_trials_features(all_trials_features: list, list_trials: list):
     start = int(num_agents / len(list_trials))
     for i, num_trials in zip(range(start, num_agents + 1, start), list_trials):
         partial_features = all_trials_features[i - start : i, :num_trials, :]
-        padded_inputs = _padding(partial_features, max_num_trial, num_trials)
+        padded_inputs = padding(partial_features, max_num_trial, num_trials)
         features.append(padded_inputs)
 
     return tf.concat(features, 0)
