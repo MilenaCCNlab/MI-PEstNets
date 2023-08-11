@@ -200,8 +200,7 @@ def get_mixed_trials_features(all_trials_features: list, list_trials: list):
         list_trials: A list of number of trials to be generated. e.g. [100, 200, 300, 400, 500]
 
     Returns:
-        A tensor object with shape (num_agent, num_trial, num_feature) 
-        with each number of trials generated equally. 
+        A tensor object with shape (num_agent, num_trial, num_feature) with each number of trials generated equally. 
         For example, if there are five items in list_trials and 30k agents. 
         Each trial data will have 6k agents in the output.
     """
@@ -222,24 +221,42 @@ def get_mixed_trials_features(all_trials_features: list, list_trials: list):
     return tf.concat(features, 0)
 
 
-# Recovery helper functions
 def recover_parameter(prediction, scaler):
-  estimated = prediction.reshape(prediction.shape[0], 1)
-  return scaler.inverse_transform(estimated)[:, 0]
+    """Scale back the prediction to the original representation.
+
+    Args:
+        prediction: The standardized prediction from neural network
+        scaler: A fitted scaler
+
+    Returns:
+        A original values based on training data fitted scaler.
+    """  
+    estimated = prediction.reshape(prediction.shape[0], 1)
+    return scaler.inverse_transform(estimated)[:, 0]
 
 def get_recovered_parameters(name_to_scaler, name_to_true_parms, prediction):
-  from collections import defaultdict
+    """Scale parameters back to its original range based on training fitted scaler.
 
-  sorted_label_names = list(name_to_true_parms.keys())
-  sorted_label_names.sort()
-  param_all_test = defaultdict(list)
-  idx = 0
-  for l in sorted_label_names:
-    k = f'true_{l}'
-    param_all_test[k] = name_to_true_parms[l][:, 0]
+    Args:
+        name_to_scaler: A dict with key as parameter name and value as its fitted scaler.
+        name_to_true_parms: A dict with key as parameter name and value as true parameter values.
+        prediction: The standardized prediction from neural network
 
-    k = f'dl_{l}'
-    param_all_test[k] = recover_parameter(prediction[:, idx], name_to_scaler[l])
-    idx += 1
+    Returns:
+        A dict contains latent parameter names to its values.
+    """
+    from collections import defaultdict
 
-  return pd.DataFrame(param_all_test)
+    sorted_label_names = list(name_to_true_parms.keys())
+    sorted_label_names.sort()
+    param_all_test = defaultdict(list)
+    idx = 0
+    for l in sorted_label_names:
+        k = f'true_{l}'
+        param_all_test[k] = name_to_true_parms[l][:, 0]
+
+        k = f'dl_{l}'
+        param_all_test[k] = recover_parameter(prediction[:, idx], name_to_scaler[l])
+        idx += 1
+
+    return pd.DataFrame(param_all_test)

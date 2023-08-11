@@ -1,10 +1,6 @@
-from tensorflow.keras import layers
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-
 from tensorflow.keras.layers import (
     Dense,
     Dropout,
-    Embedding,
     GRU,
 )
 
