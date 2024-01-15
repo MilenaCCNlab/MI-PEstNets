@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import special
 import random
-
+import copy
 ###### RL Models ######
 
 def PRLtask_2ParamRL(parameters,numtrials,pval,minswitch,numaction,agentid):
@@ -130,8 +130,7 @@ def PRLtask_4ParamRL(parameters,numtrials,pval,minswitch,numaction,agentid):
 
   for i in range(numtrials):
 
-    W = actionQvalues
-
+    W = copy.copy(actionQvalues)
     if i > 0:
       W[action] = W[action]+stickiness
 
@@ -427,7 +426,7 @@ def PRLtask_StickyBayes(parameters, numtrials, pval, minswitch, numbandits, agen
 
   for i in range(numtrials):
 
-    W = Q
+    W = copy.copy(Q)
     if i > 1:
       W[a] = W[a] + stick
 
